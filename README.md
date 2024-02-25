@@ -18,7 +18,7 @@ To install and run the Discord Rag Bot, follow these steps:
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/discord-rag-bot.git
+    git clone https://github.com/Hk669/discordAI-bot.git
     ```
 
 2. Install dependencies:
