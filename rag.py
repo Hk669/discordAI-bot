@@ -5,6 +5,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
+from langchain_community.document_loaders import PyPDFLoader
 import os
 import pandas as pd
 import numpy as np
@@ -13,6 +14,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+def split_data(url):
+    """
+    data file location url: str
+    content_column: str
+
+    splitted_text: Document(page_content= str, metadata={})
+    ids: str(uuid4)
+    """
+    loader = PyPDFLoader(url)
+    pages = loader.load_and_split()
+    return pages
 
 def split_data_csv(url, content_column):
     """
@@ -31,7 +44,7 @@ def split_data_csv(url, content_column):
     ids = [str(uuid4()) for _ in splitted_text]
     return splitted_text, ids
 
-def vectorstore(splitted_texts, ids):
+def vectorstore(splitted_texts):
     """
     splitted_text: List[Documents]
     ids: str(uuid4)
@@ -39,7 +52,7 @@ def vectorstore(splitted_texts, ids):
     embeddings_model = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
     chromadb = Chroma.from_documents(splitted_texts,
                                  embeddings_model,
-                                 ids=ids,
+                                #  ids=ids,
                                  persist_directory = './chromadb')
     return chromadb
 
@@ -77,13 +90,13 @@ def retreival_chain(chain, query):
 
 if  __name__ == '__main__':
     # data prep
-    # url = r'C:\Users\hrush\OneDrive - Student Ambassadors\Desktop\discord bot\data\Wikipedia Crypto Articles.csv'
-    # split_doc, ids = split_data_csv(url, 'title')
-    # chromadb = vectorstore(split_doc,ids)
+    # url = r'C:\Users\hrush\OneDrive - Student Ambassadors\Desktop\discord bot\biconomyPay.pdf'
+    # split_doc= split_data(url)
+    # chromadb = vectorstore(split_doc)
     
     chain = genchain()
 
     # retreival
-    query = 'Who is the founder of Ethereum?'
+    query = 'What are paymaster methods and provide the code write smart contract?'
     response = retreival_chain(chain,query)
     print(response)
